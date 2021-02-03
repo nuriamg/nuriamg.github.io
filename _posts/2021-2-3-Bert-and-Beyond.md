@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Paper Summary of Pretrained Transformer for Text Ranking Bert and Beyond
+title: Paper Summary of "Pretrained Transformer for Text Ranking: Bert and Beyond"
 ---
 
 ## Paper Summary: Pretrained Transformer for Text Ranking - Bert and Beyond
