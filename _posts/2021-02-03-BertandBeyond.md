@@ -5,8 +5,8 @@ title: Paper Summary of "Pretrained Transformer for Text Ranking - Bert and Beyo
 
 ### Introduction
 **Text Ranking**: generate an ordered set of texts retrieved from a corpus in response to a query for a particular task. The most common form of text ranking is search.
-    - Examples: QA Question Answering, CQA Community QA, Information Filtering, Text Recommendation, Ranking as Input to Downstream Models.
-    - Examples beyond information access: Distant Supervision and Data Augmentation, Selecting from Competing Hypotheses.
+* Examples: QA Question Answering, CQA Community QA, Information Filtering, Text Recommendation, Ranking as Input to Downstream Models.
+* Examples beyond information access: Distant Supervision and Data Augmentation, Selecting from Competing Hypotheses.
 
 **Ad Hoc Retrieval Problem**: we want to retrieve the relevant texts for a query that are about the topic of the user's request and address the need of information of the user.
 
