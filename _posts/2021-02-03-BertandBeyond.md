@@ -88,5 +88,106 @@ Conclusions from only experiments on one test collection should be avoided and i
 
 **Keyword search**: techniques that rely on exact term matching to compute the relevant scores between queries and documents from a corpus. Usually with bag-of-words queries but now always, also we can use n-grams.
 
+### Multi-Stage Ranking Architectures
+
+**Relevance Classification**: treat the problem as a classification where we need to infer if the documents are in the relevant class and the ranking is just a list of all the order documents by this probability of being the relevant class for an information need. → Supervised Machine Learning. Point-wise learning technique. 
+ * It is a simplification as relevance is not a binary property.
+
+Probability Ranking Principle: documents should be ranked in decreasing order of the estimated probability of being relevant with respect to the information needs.
+
+**BERT**: Bidirectional Encoder Representation from Transformers [Devlin et al. 2019]. 
+* Neural network model that generates contextual embeddings for input sequences in English.
+* Input: vector representation derived from tokens. The input sequences are usually tokenised by WordPiece or BPE. Their aim is to reduce the vocabulary space by splitting words (we can model large texts by using a small vocabulary: 30000 word pieces). The input is divided into three components: 
+    * token embedding: that is done by Word Piece.
+    * segment embedding: it states if the token belongs to input A or input B ($E_A$ and $E_B$).
+    * position embedding: captures the position of the token in the sequence.
+    * The final input is an element-wise summation (not a concatenation) of all embeddings.
+* The input is passed through a stack of transformer encoder layers that produce the outputs. 
+* Hyper-parameters: number of hidden layers, dimension of the hidden layers, attention heads.
+* Transformers exhibit quadratic complexity in time and space w.r.t the input.
+* Output: sequence of contextual embeddings → context-dependent representations of the input tokens. They capture the complexities of the language like semantics or syntax as well as polysemy 😲.
+* Transformers were designed for sequence-to-sequence tasks (video captioning or machine translation) but BERT is just the encoder half of the transformer. (GPT is the decoder half so is the opposite of BERT).
+* Uses self-supervision in pre-training compared of starting with random initialization of the model weights. This is good as the model optimization is not bound to the labeled data you have (the text provides its own labels). And it provides a good starting point for more specific tasks.
+* The objective is the MLM (Masked Language Model) pre-training objective (Taylor, 1953): we mask a token from the input sequence, and we ask the model to predict it, while training it with a loss.
+* It is called Bidirectional as it understands the right and left context of a token in order to make predictions (GPT only understands preceding tokens).
+* Tasks: 
+    * Single-input classification tasks (sentiment analysis).
+    * Two-input classification tasks (detecting if two sentences are paraphrases of each other).
+    * Single-input labelling task (named-entity recognition)
+    * Two-input labelling tasks (QA, we label the answer span in a text given question)
+
+**monoBERT**: Relevance Classification. We want to estimate the score $s_i$ that represents how relevant is a candidate document $d_i$ to a query $q$: $P(\text{Relevant} = 1\lvert d_i, q)$. 
+* Input: [[CLS], q, [SEP], d,[SEP]], q tokens are the verbatim from the user queries.
+* Output: a contextual vector representation for each token. The vector $T_{[CLS]}$ of the [CLS] token is imputed to a single layer fully-connected network to obtain the score that represents the relevancy of document d to query q. $P(\text{Relevant} = 1|d_i, q) = s_i = \text{softMax}(T_{[CLS]}W + b)_1$. The factor one is because the single layer has two neurons one for the relevant class and another for the non-relevant class.
+* The structure is the BERT and the classification layer. It is trained end-to-end with cross entropy loss.
+* Limited to ranking documents of a small length. Why? Because of the limitations of computation nowadays and the fact that BERT was pre-trained with a sequence of tokens smaller than 512 (the positional token is $<$ 512).
+
+**Length limitation of BERT**: tackled by Birch, BERT-MaxP and CEDR (2019). PCGM, PARADE (2020) 
+* Training: what do we feed the model? If the query+document exceeds the length of BERT we need to truncate the document so the training will be noisy...
+* Inference: what do we feed the model? If we feed it truncated documents how do we compute the overall score of the document? We can do an aggregation of scores or representations of the segments (for example we can take the maximum score).
+* **Birch**: avoids the training problem by using data that does not exceed the length and tackles the inference problem by estimating the relevance of sentences and doing aggregation. 
+    * They combine the scores of the different sentences by picking the top n scores and combining them with the original document score (the one in the first stage). $s_i = \alpha s_d + (1-\alpha)\sum_{i=1}^nw_is_i$. $\alpha$ and $w_i$ are tuned by cross-validation
+    * We can pre-train BERT in a different domain and the results will be applicable to our task with high accuracy.
+    * It appears that the document relevance can be estimated considering only the top scoring sentences.
+* **Passage Score Aggregation: BERT-MaxP**: it segments documents into overlapping passages. They use a 150-sliding window of stride 75. 
+    * Aggregation: $s_d = \max{s_i}$ or $s_d = s_1$ or $s_d = \sum_i s_i$. The max approach is the one that works best
+    * The input is not just the title of the topic but a combination of the title and the description.
+    * BERT can exploit linguistically rich queries, which is different from keyword search.
+    * Extension PCGM (2020).
+* **Leveraging Contextual Embeddings**: CEDR: Can we use the contextual embedding of the words to do the ranking? 
+    * The training problem is solved by splitting the documents into chunks and BERT inference is applied to every chunk independently. It does an average pooling of the [CLS] representation of the different chunks.
+    * The model constructs a similarity matrix as the pre-BERT interaction-based models.
+    * The score is a combination of the BERT score and the scores derived from the similarity matrix that go through a fully connected layer.
+    * Allows uniform treatment of training and inference.
+* **Passage Aggregation Representation: PARADE**: direct descendant from CEDR. 
+    * It focusses on aggregation of REPRESENTATION of passages instead of aggregating scores of passages. Aggregates the [CLS] representation of each passage. Passage representations are very rich in information.
+    * Differentiable model, it can consider at unison multiple passages.
+
+**Multi-Stage Re-rankers**: 
+* Reranking pipelines or cascades or "telescoping": 
+    * we have $N$ stages denoted as $H_1$ to $H_N$.
+    * The first stage of the ranking is referred as $H_0$, that retrieves $k_0$ from an inverted index.
+    * Each stage $H_n$ receives a ranked list $R_{n-1}$ of $k_{n-1}$ candidates, and provides a ranked list $R_n$ of $k_n$ elements.
+    * $k_n \leq k_{n-1}$
+* A common design is that scores of each stage are additive or a re-ranker can decide to completely ignore the previous scores.
+* 💡 Motivation: they balance the tradeoff between effectiveness and efficiency.
+* The idea of multi-stage re-rankers is to exploit expensive features only when necessary → early stages uses cheap features to discard easy candidates. They can exploit "early exits" [Cambazoglu et al. 2010].
+* For higher recall maybe they are not that useful.
+* **Additive ensembles**: the score of each stage is added to the score of the previous stages.
+* Pairwise reranking: duoBERT: it focuses on comparing pairs of candidate documents. 
+    * $P_{ij} = P(d_i > d_j|d_i,d_j,q)$, which is more relevant $d_i$ or $d_j$, with respect to $q$.
+    * The model outputs a comparison between docs, we still need to aggregate this results to form a ranked list.
+    * Input: [[CLS],q,[SEP],di,[SEP],dj,[SEP]].
+    * For $k$ candidates the output is $|k|\times(|k|-1)$ probabilities.
+    * The methods of aggregation can be MAX, MIN, SUM, BINARY.
+* **Efficient Multi-Stage Re-rankers: Cascade Transformers**: we want a system even faster but not that accurate. 
+    * Early exits in the middle layers of BERT. How do we discard candidates? we can do the bottom 30%, or we can do a score threshold, or learn a classifier.
+    * Works only for question answering, not for long documents.
+
+**Document Preprocessing Techniques**: 
+* **Vocabulary mismatch problem**: when you use different works to describe a concept. Problem for exact matching techniques. One poor solution could be picking more candidates and that way you will pick all relevant texts.
+* The initial candidate generation stage (first stage) it is still a bottle neck.
+* **Document expansion**: add additional terms that represent the content of a document. $\neq$ query expansion.
+* Document expansion via Query Predictions: **doc2query**: sequence to sequence model that produces queries for a given document. Then the queries are added at the documents like an expansion. It is a very fast technique. → the RECALL is higher! Good for a starting point in downstream models.
+* **Term Re-weighting as Regression: DeepCT**: (Deep Contextualized Term Weighting) uses a BERT-based model to output an importance score for each term in a document. 
+    * QTR Query Term Recall: $\text{QTR}(t,d) = \frac{|Q_{d,t}|}{|Q_d|} = y_{t,d}$, the denominator is the number of queries relevant to document d and the numerator is the number of queries relevant to document d that contain the term t.
+    * $\hat{y}{t,d} = wT{t,d} + b$, minimizing the MSE loss.
+    * The recall is high! Much faster than doc2query.
+* **Term Re-weighting with Weak Supervision: HDCT**: context aware hierarchical document term weighting framework. Same as DeepCT they want to estimate the importance of a term in a document based on the contextual embeddings of BERT. 
+    * Aimed at solving the problem of length limitation.
+    * They compute the importance scores for terms by passages. We have a vector of all term frequencies in a passage, then a set of this term frequencies at all passages. They do a weighted sum of this vectors.
+* **Target Corpus Pre-training and Relevance Transfer**: techniques to use after the first stage and before the rerankers. 
+    * TCP: additional pre-training the model with your corpus using the same objective.
+    * Out-of-domain Relevance Judgements: provide the model general notions of relevance matching before using task specific data.
+
+BERT is good but slow! What if we go **beyond BERT**? 
+* Better pre-trained BERT variants: RoBERTa (removes the next sentence prediction part of the objective), ALBERT (uses the same weights for each layer), ELECTRA (instead of MLM it trains on replaces token detection).
+* Distillation: smallest versions of BERT. Student-teacher model. TinyBERT. It degrades effectiveness but increases efficiency. Train a large model and then distill it.
+* Re-ranking with Transformers: Transformer Kernel TK(separate transformers stacks to compute contextual representations of query and document terms, the fed to a similarity matrix), TKL (replaces the self-attention layers with local self-attention, attention from a distant term is always 0), Conformer Kernel CK (adds exact term matching component, very memory efficient, low effectiveness)
+* Sequence-to-sequence models: monoT5: we can formulate every task as a sequence-to-sequence task. The model outputs true or false depending on the relevance of the document to a query. Very good results but no one understands why.
+
+Domain-specific applications: SciBERT and BioBERT.
+
+
 ----
 ****
