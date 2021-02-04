@@ -171,7 +171,7 @@ Probability Ranking Principle: documents should be ranked in decreasing order of
 * Document expansion via Query Predictions: **doc2query**: sequence to sequence model that produces queries for a given document. Then the queries are added at the documents like an expansion. It is a very fast technique. → the RECALL is higher! Good for a starting point in downstream models.
 * **Term Re-weighting as Regression: DeepCT**: (Deep Contextualized Term Weighting) uses a BERT-based model to output an importance score for each term in a document. 
     * QTR Query Term Recall: $\text{QTR}(t,d) = \frac{\lvert Q_{d,t}\rvert}{\lvert Q_d\rvert} = y_{t,d}$, the denominator is the number of queries relevant to document d and the numerator is the number of queries relevant to document d that contain the term t.
-    * $\hat{y}_{t,d} = wT_{t,d} + b$, minimizing the MSE loss.
+    * $y_{t,d} = w T_{t,d} + b$, minimizing the MSE loss.
     * The recall is high! Much faster than doc2query.
 * **Term Re-weighting with Weak Supervision: HDCT**: context aware hierarchical document term weighting framework. Same as DeepCT they want to estimate the importance of a term in a document based on the contextual embeddings of BERT. 
     * Aimed at solving the problem of length limitation.
