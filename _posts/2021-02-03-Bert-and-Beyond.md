@@ -181,10 +181,10 @@ Probability Ranking Principle: documents should be ranked in decreasing order of
     * Out-of-domain Relevance Judgements: provide the model general notions of relevance matching before using task specific data.
 
 BERT is good but slow! What if we go **beyond BERT**? 
-* Better pre-trained BERT variants: RoBERTa (removes the next sentence prediction part of the objective), ALBERT (uses the same weights for each layer), ELECTRA (instead of MLM it trains on replaces token detection).
-* Distillation: smallest versions of BERT. Student-teacher model. TinyBERT. It degrades effectiveness but increases efficiency. Train a large model and then distill it.
-* Re-ranking with Transformers: Transformer Kernel TK(separate transformers stacks to compute contextual representations of query and document terms, the fed to a similarity matrix), TKL (replaces the self-attention layers with local self-attention, attention from a distant term is always 0), Conformer Kernel CK (adds exact term matching component, very memory efficient, low effectiveness)
-* Sequence-to-sequence models: monoT5: we can formulate every task as a sequence-to-sequence task. The model outputs true or false depending on the relevance of the document to a query. Very good results but no one understands why.
+* **Better pre-trained BERT variants**: RoBERTa (removes the next sentence prediction part of the objective), ALBERT (uses the same weights for each layer), ELECTRA (instead of MLM it trains on replaces token detection).
+* **Distillation**: smallest versions of BERT. Student-teacher model. TinyBERT. It degrades effectiveness but increases efficiency. Train a large model and then distill it.
+* **Re-ranking with Transformers**: Transformer Kernel TK(separate transformers stacks to compute contextual representations of query and document terms, the fed to a similarity matrix), TKL (replaces the self-attention layers with local self-attention, attention from a distant term is always 0), Conformer Kernel CK (adds exact term matching component, very memory efficient, low effectiveness)
+* **Sequence-to-sequence models**: monoT5: we can formulate every task as a sequence-to-sequence task. The model outputs true or false depending on the relevance of the document to a query. Very good results but no one understands why.
 
 Domain-specific applications: SciBERT and BioBERT.
 
