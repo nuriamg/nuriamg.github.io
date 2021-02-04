@@ -134,7 +134,7 @@ Probability Ranking Principle: documents should be ranked in decreasing order of
     * The input is not just the title of the topic but a combination of the title and the description.
     * BERT can exploit linguistically rich queries, which is different from keyword search.
     * Extension PCGM (2020).
-* **Leveraging Contextual Embeddings**: CEDR: Can we use the contextual embedding of the words to do the ranking? 
+* **Leveraging Contextual Embeddings: CEDR**: Can we use the contextual embedding of the words to do the ranking? 
     * The training problem is solved by splitting the documents into chunks and BERT inference is applied to every chunk independently. It does an average pooling of the [CLS] representation of the different chunks.
     * The model constructs a similarity matrix as the pre-BERT interaction-based models.
     * The score is a combination of the BERT score and the scores derived from the similarity matrix that go through a fully connected layer.
