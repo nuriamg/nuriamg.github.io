@@ -52,7 +52,7 @@ BERT (Bidirectional Encoder Representations from Transformers, Devlin et al. 201
 **Ranking Metrics**: they quantify the quality of a ranking of texts from relevant judgements $(q,d,r)$. The judgement usually comes from an annotation and describes the relevancy r of document d to query q. It can be a binary value, a five points scale... 
 * The qrels are the relevance judgements (ground truth) and the run is the predicted scores. These two rankings are fed into a trec_eval: automatically computes metrics.
 
-* **Precision**: fraction of documents in a ranked list $R$ that are relevant. $\text{Precision}(R,q) = \frac{\sum_{(i,d)\in R}\text{rel}(q,d)}{|R|}$, where $\text{rel}(q,d)$ is the binary relevance of document $d$ to query $q$. $P@k$ would be the cutoff precision, it can be understood as of the k top results which fraction are relevant. 
+* **Precision**: fraction of documents in a ranked list $R$ that are relevant. $\text{Precision}(R,q) = \frac{\sum_{(i,d)\in R}\text{rel}(q,d)}{R}$, where $\text{rel}(q,d)$ is the binary relevance of document $d$ to query $q$. $P@k$ would be the cutoff precision, it can be understood as of the k top results which fraction are relevant. 
     * **R-Precision**: cutoff precision of relevant documents for a particular topic.
     * Advantage: Easy to interpret.
     * Downside: does not take into account graded relevance, only binary.
