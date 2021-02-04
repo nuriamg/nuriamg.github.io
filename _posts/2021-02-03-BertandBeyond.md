@@ -15,14 +15,14 @@ title: Paper Summary of "Pretrained Transformer for Text Ranking - Bert and Beyo
 
 Deep Learning has freed the text ranking problem from the challenges of exact term matching.
 
-Pre-BERT Models: 
+**Pre-BERT Models**: 
 * Representation-based: learn dense vector representation of queries and documents independently, and we compute the similarity between the representation with cosine similarity or inner product. DSSM, 2013. DESM, 2016.
 * Interaction-based: compare representation of term of the query and documents directly and produce a similarity matrix. DRMM, 2016. KNRM, 2017.
 * Both approaches can include neural networks for creating the representations.
 * IB are more effective models but slower than RB.
 * Hybrid Models: DUET, 2017.
 
-BERT (Bidirectional Encoder Representations from Transformers, Devlin et al. 2019) is an algorithm that uses transformers (like LSTM but better). 
+**BERT** (Bidirectional Encoder Representations from Transformers, Devlin et al. 2019) is an algorithm that uses transformers (like LSTM but better). 
 * Transformers were presented in 2017 by Vaswani et al. and BERT was presented in 2018. 
 * Transformers are innovative in high level design choices and low-level implementation details.
 * It has revolutionized the NLP and IR world.
@@ -52,7 +52,7 @@ BERT (Bidirectional Encoder Representations from Transformers, Devlin et al. 201
 **Ranking Metrics**: they quantify the quality of a ranking of texts from relevant judgements $(q,d,r)$. The judgement usually comes from an annotation and describes the relevancy r of document d to query q. It can be a binary value, a five points scale... 
 * The qrels are the relevance judgements (ground truth) and the run is the predicted scores. These two rankings are fed into a trec_eval: automatically computes metrics.
 
-* **Precision**: fraction of documents in a ranked list $R$ that are relevant. $\text{Precision}(R,q) = \frac{\sum_{(i,d)\in R}\text{rel}(q,d)}{R}$, where $\text{rel}(q,d)$ is the binary relevance of document $d$ to query $q$. $P@k$ would be the cutoff precision, it can be understood as of the k top results which fraction are relevant. 
+* **Precision**: fraction of documents in a ranked list $R$ that are relevant. $\text{Precision}(R,q) = \frac{\sum_{(i,d)\in R}\text{rel}(q,d)}{\lvert R \rvert}$, where $\text{rel}(q,d)$ is the binary relevance of document $d$ to query $q$. $P@k$ would be the cutoff precision, it can be understood as of the k top results which fraction are relevant. 
     * **R-Precision**: cutoff precision of relevant documents for a particular topic.
     * Advantage: Easy to interpret.
     * Downside: does not take into account graded relevance, only binary.
@@ -82,7 +82,7 @@ BERT (Bidirectional Encoder Representations from Transformers, Devlin et al. 201
 
 * **Ranked Based Precision (RBP)**.
 
-Test collections have a set of documents of length $|\mathcal{C}|$ and an average length of the documents $\bar{L}(\mathcal{C})$, the number of queries $|q|$ and the average length of those $\bar{L}(q)$, the amount of relevance judgements
+Test collections have a set of documents of length $\lvert\mathcal{C}\rvert$ and an average length of the documents $\bar{L}(\mathcal{C})$, the number of queries $\lvert q\rvert$ and the average length of those $\bar{L}(q)$, the amount of relevance judgements
 
 Conclusions from only experiments on one test collection should be avoided and instead we should evaluate our model on multiple test collections.
 
