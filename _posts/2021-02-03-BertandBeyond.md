@@ -118,7 +118,7 @@ Probability Ranking Principle: documents should be ranked in decreasing order of
 
 **monoBERT**: Relevance Classification. We want to estimate the score $s_i$ that represents how relevant is a candidate document $d_i$ to a query $q$: $P(\text{Relevant} = 1\lvert d_i, q)$. 
 * Input: [[CLS], q, [SEP], d,[SEP]], q tokens are the verbatim from the user queries.
-* Output: a contextual vector representation for each token. The vector $T_{[CLS]}$ of the [CLS] token is imputed to a single layer fully-connected network to obtain the score that represents the relevancy of document d to query q. $P(\text{Relevant} = 1|d_i, q) = s_i = \text{softMax}(T_{[CLS]}W + b)_1$. The factor one is because the single layer has two neurons one for the relevant class and another for the non-relevant class.
+* Output: a contextual vector representation for each token. The vector $T_{[CLS]}$ of the [CLS] token is imputed to a single layer fully-connected network to obtain the score that represents the relevancy of document d to query q. $P(\text{Relevant} = \lvert 1d_i, q) = s_i = \text{softMax}(T_{[CLS]}W + b)_1$. The factor one is because the single layer has two neurons one for the relevant class and another for the non-relevant class.
 * The structure is the BERT and the classification layer. It is trained end-to-end with cross entropy loss.
 * Limited to ranking documents of a small length. Why? Because of the limitations of computation nowadays and the fact that BERT was pre-trained with a sequence of tokens smaller than 512 (the positional token is $<$ 512).
 
@@ -155,10 +155,10 @@ Probability Ranking Principle: documents should be ranked in decreasing order of
 * For higher recall maybe they are not that useful.
 * **Additive ensembles**: the score of each stage is added to the score of the previous stages.
 * Pairwise reranking: duoBERT: it focuses on comparing pairs of candidate documents. 
-    * $P_{ij} = P(d_i > d_j|d_i,d_j,q)$, which is more relevant $d_i$ or $d_j$, with respect to $q$.
+    * $P_{ij} = P(d_i > d_j\lvert d_i,d_j,q)$, which is more relevant $d_i$ or $d_j$, with respect to $q$.
     * The model outputs a comparison between docs, we still need to aggregate this results to form a ranked list.
     * Input: [[CLS],q,[SEP],di,[SEP],dj,[SEP]].
-    * For $k$ candidates the output is $|k|\times(|k|-1)$ probabilities.
+    * For $k$ candidates the output is $\lvert k\rvert \times(\lvert k\rvert-1)$ probabilities.
     * The methods of aggregation can be MAX, MIN, SUM, BINARY.
 * **Efficient Multi-Stage Re-rankers: Cascade Transformers**: we want a system even faster but not that accurate. 
     * Early exits in the middle layers of BERT. How do we discard candidates? we can do the bottom 30%, or we can do a score threshold, or learn a classifier.
@@ -170,7 +170,7 @@ Probability Ranking Principle: documents should be ranked in decreasing order of
 * **Document expansion**: add additional terms that represent the content of a document. $\neq$ query expansion.
 * Document expansion via Query Predictions: **doc2query**: sequence to sequence model that produces queries for a given document. Then the queries are added at the documents like an expansion. It is a very fast technique. → the RECALL is higher! Good for a starting point in downstream models.
 * **Term Re-weighting as Regression: DeepCT**: (Deep Contextualized Term Weighting) uses a BERT-based model to output an importance score for each term in a document. 
-    * QTR Query Term Recall: $\text{QTR}(t,d) = \frac{|Q_{d,t}|}{|Q_d|} = y_{t,d}$, the denominator is the number of queries relevant to document d and the numerator is the number of queries relevant to document d that contain the term t.
+    * QTR Query Term Recall: $\text{QTR}(t,d) = \frac{\lvert Q_{d,t}\rvert}{\lvert Q_d\rvert} = y_{t,d}$, the denominator is the number of queries relevant to document d and the numerator is the number of queries relevant to document d that contain the term t.
     * $\hat{y}{t,d} = wT{t,d} + b$, minimizing the MSE loss.
     * The recall is high! Much faster than doc2query.
 * **Term Re-weighting with Weak Supervision: HDCT**: context aware hierarchical document term weighting framework. Same as DeepCT they want to estimate the importance of a term in a document based on the contextual embeddings of BERT. 
